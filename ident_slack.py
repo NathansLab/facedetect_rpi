@@ -8,11 +8,13 @@ import numpy as np
 import requests
 import time
 
+#other requirements: mpg123
+
 #import picamera    #on raspi
 import cv2          #on other devices
 
-imagedir = "/home/nathan/Bilder/faces/users/*.jpg"
-slackurl = "https://hooks.slack.com/services/*****/*****
+imagedir = "/home/nathan/Bilder/faces/some/*.jpg"
+slackurl = "https://hooks.slack.com/services/****/**/***"
 
 def detect(frame, images, encodings, names):
     face_locations = face_recognition.face_locations(frame)
@@ -22,9 +24,10 @@ def detect(frame, images, encodings, names):
         face_on_frame = face_recognition.face_encodings(frame, face_locations)
         for i in range(0, len(encodings)):
             if face_recognition.compare_faces([encodings[i][0]], face_on_frame[0]) == [True]:
-                message = "I see " + str(names[i])
+                message = "Hallo " + str(names[i])
                 payload = { "text" : message }
                 requests.post(slackurl, data=json.dumps(payload))
+                os.system("gtts-cli \"Hallo " + str(names[i]) + ".\" -l de | mpg123 -q -")
     else:
         print("No Face found")
 
@@ -70,5 +73,5 @@ if __name__ == '__main__':
         #camera.capture(frame, format="rgb")            #on raspi
         p = Process(target=detect, args=(frame, images, encodings, names,))
         p.start()
-        time.sleep(3)
+        time.sleep(2)
     video_capture.release()
